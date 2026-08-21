@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from .schemas import ProdutoCriar, ProdutoPublico, ProdutoAtualizar
 
+#teste
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
 # Banco de mentira: uma lista em memoria. Vira banco de verdade no encontro 4.
