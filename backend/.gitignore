@@ -1,0 +1,16 @@
+# Variáveis de ambiente (NUNCA subir para o Git)
+.env
+
+# Banco de dados local SQLite
+banco.db
+*.sqlite3
+*.db
+
+# Arquivos temporários e cache do Python
+__pycache__/
+*.pyc
+
+# Diretórios de ambiente virtual (se houver)
+.venv/
+venv/
+env/

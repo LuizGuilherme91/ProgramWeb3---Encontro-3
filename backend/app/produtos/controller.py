@@ -1,41 +1,34 @@
-from fastapi import APIRouter, HTTPException, status
-from .schemas import ProdutoCriar, ProdutoPublico, ProdutoAtualizar
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
-#teste
+from ..database import get_db
+from . import service
+from .schemas import ProdutoAtualizar, ProdutoCriar, ProdutoPublico
+
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
-# Banco de mentira: uma lista em memoria. Vira banco de verdade no encontro 4.
-produtos: list[dict] = []
-
 @router.get("/", response_model=list[ProdutoPublico])
-def listar():
-    return produtos
+def listar(db: Session = Depends(get_db)):
+    return service.listar(db)
 
 @router.post("/", response_model=ProdutoPublico, status_code=201)
-def criar(dados: ProdutoCriar):
-    novo = {"id": len(produtos) + 1, **dados.model_dump()}
-    produtos.append(novo)
-    return novo
+def criar(dados: ProdutoCriar, db: Session = Depends(get_db)):
+    return service.criar(db, dados.model_dump())
 
 @router.get("/{produto_id}", response_model=ProdutoPublico)
-def buscar(produto_id: int):
-    for p in produtos:
-        if p["id"] == produto_id:
-            return p
-    raise HTTPException(status_code=404, detail="Produto nao encontrado")
+def buscar(produto_id: int, db: Session = Depends(get_db)):
+    return service.buscar(db, produto_id)
 
 @router.patch("/{produto_id}", response_model=ProdutoPublico)
-def atualizar(produto_id: int, dados: ProdutoAtualizar):
-    for p in produtos:
-        if p["id"] == produto_id:
-            p.update(dados.model_dump(exclude_unset=True))
-            return p
-    raise HTTPException(status_code=404, detail="Produto nao encontrado")
+def atualizar(
+    produto_id: int,
+    dados: ProdutoAtualizar,
+    db: Session = Depends(get_db),
+):
+    return service.atualizar(
+        db, produto_id, dados.model_dump(exclude_unset=True)
+    )
 
 @router.delete("/{produto_id}", status_code=204)
-def apagar(produto_id: int):
-    for p in produtos:
-        if p["id"] == produto_id:
-            produtos.remove(p)
-            return
-    raise HTTPException(status_code=404, detail="Produto nao encontrado")
+def apagar(produto_id: int, db: Session = Depends(get_db)):
+    service.apagar(db, produto_id)
