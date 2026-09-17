@@ -13,10 +13,12 @@ ARGS = {"check_same_thread": False} if URL.startswith("sqlite") else {}
 engine = create_engine(URL, connect_args=ARGS)
 SessionLocal = sessionmaker(bind=engine, autoflush=False)
 
+
 class Base(DeclarativeBase):
     """Todas as tabelas herdam daqui. E assim que o SQLAlchemy
     descobre quais existem.
     """
+
 
 def get_db():
     """Uma sessao por requisicao, fechada mesmo se der erro."""
