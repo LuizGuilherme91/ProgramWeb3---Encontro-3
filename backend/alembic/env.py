@@ -5,11 +5,10 @@ from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
 from app.usuarios.models import Usuario
+import app.produtos.models
 
 from alembic import context
-
 from app.database import Base
-import app.produtos.models
 
 config = context.config
 
@@ -22,7 +21,6 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 BATCH = True
-
 
 def run_migrations_offline() -> None:
     """Gera o SQL sem conectar no banco (`alembic upgrade head --sql`)."""
@@ -37,7 +35,6 @@ def run_migrations_offline() -> None:
 
     with context.begin_transaction():
         context.run_migrations()
-
 
 def run_migrations_online() -> None:
     """Conecta no banco e aplica as migracoes -- o caso de sempre."""
@@ -56,7 +53,6 @@ def run_migrations_online() -> None:
 
         with context.begin_transaction():
             context.run_migrations()
-
 
 if context.is_offline_mode():
     run_migrations_offline()

@@ -7,7 +7,6 @@ from .produtos.erros import ErroDeProduto, ProdutoNaoEncontrado
 app = FastAPI(title="API do Meu Projeto", version="0.3.0")
 app.include_router(produtos_controller.router)
 
-
 @app.exception_handler(ErroDeProduto)
 def traduzir_recusa(request: Request, erro: ErroDeProduto):
     """O unico lugar do sistema que transforma recusa em numero HTTP."""
