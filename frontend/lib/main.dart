@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-// Mude a importação para o ficheiro de cadastro
-import 'screens/cadastro_screen.dart';
+
+import 'repositories/usuario_repository.dart';
+import 'screens/login_screen.dart';
+import 'services/sessao_service.dart';
 
 void main() {
-  runApp(const ProdutosApp());
+  final sessao = SessaoService(UsuarioRepository());
+  runApp(ProdutosApp(sessao: sessao));
 }
 
 class ProdutosApp extends StatelessWidget {
-  const ProdutosApp({super.key});
+  const ProdutosApp({super.key, required this.sessao});
+
+  final SessaoService sessao;
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +20,7 @@ class ProdutosApp extends StatelessWidget {
       title: 'Gestão de Produtos',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.indigo),
-      // Mude a tela inicial aqui
-      home: const CadastroScreen(),
+      home: LoginScreen(sessao: sessao),
     );
   }
 }
