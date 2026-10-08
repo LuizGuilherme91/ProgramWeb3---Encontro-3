@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../models/usuario.dart';
+import '../routes.dart';
 import '../services/sessao_service.dart';
-import 'login_screen.dart';
 
 class InicioScreen extends StatefulWidget {
   const InicioScreen({super.key, required this.sessao});
@@ -32,9 +32,10 @@ class _InicioScreenState extends State<InicioScreen> {
 
   void sair() {
     widget.sessao.sair();
-    Navigator.pushReplacement(
+    Navigator.pushNamedAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => LoginScreen(sessao: widget.sessao)),
+      AppRoutes.login,
+      (rota) => false,
     );
   }
 
@@ -69,7 +70,7 @@ class _InicioScreenState extends State<InicioScreen> {
                   const SizedBox(height: 8),
                   Text(usuario!.email),
                   const SizedBox(height: 24),
-                  const Text('Acesso ao catálogo liberado.'),
+                  const Text('A API reconheceu o seu token.'),
                 ],
               ),
       ),
