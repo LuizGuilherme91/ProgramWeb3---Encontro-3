@@ -5,12 +5,12 @@ import 'repositories/usuario_repository.dart';
 import 'routes.dart';
 import 'screens/cadastro_screen.dart';
 import 'screens/inicio_screen.dart';
+import 'screens/produtos_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/perfil_screen.dart';
 import 'services/sessao_service.dart';
 import 'widgets/rota_protegida.dart';
 
-// Aqui as camadas se montam: o repositório entra no service, e o service 
-// fica no topo do app, onde toda tela o alcança sem passar por construtor.
 void main() {
   runApp(
     ChangeNotifierProvider(
@@ -34,6 +34,8 @@ class ProdutosApp extends StatelessWidget {
         AppRoutes.login: (context) => const LoginScreen(),
         AppRoutes.cadastro: (context) => const CadastroScreen(),
         AppRoutes.inicio: (context) => const RotaProtegida(tela: InicioScreen()),
+        AppRoutes.produtos: (context) => const RotaProtegida(tela: ProdutosScreen()),
+        AppRoutes.perfil: (context) => const RotaProtegida(tela: PerfilScreen()),
       },
     );
   }
