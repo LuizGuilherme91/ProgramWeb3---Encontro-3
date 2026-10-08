@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../routes.dart';
 import '../services/sessao_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.sessao});
-
-  final SessaoService sessao;
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -24,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
       erro = null;
     });
     try {
-      await widget.sessao.entrar(email.text, senha.text);
+      await context.read<SessaoService>().entrar(email.text, senha.text);
     } on ErroDeLogin catch (e) {
       setState(() {
         carregando = false;
