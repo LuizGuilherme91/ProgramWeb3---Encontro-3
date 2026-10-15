@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'repositories/token_repository.dart';
 import 'repositories/usuario_repository.dart';
 import 'routes.dart';
 import 'screens/cadastro_screen.dart';
@@ -11,12 +12,14 @@ import 'screens/perfil_screen.dart';
 import 'services/sessao_service.dart';
 import 'widgets/rota_protegida.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final sessao = SessaoService(UsuarioRepository(), tokens: TokenRepository());
+  
+  await sessao.restaurar();
+  
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => SessaoService(UsuarioRepository()),
-      child: const ProdutosApp(),
-    ),
+    ChangeNotifierProvider.value(value: sessao, child: const ProdutosApp()),
   );
 }
 
@@ -29,7 +32,7 @@ class ProdutosApp extends StatelessWidget {
       title: 'Gestão de Produtos',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.indigo),
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.inicio,
       routes: {
         AppRoutes.login: (context) => const LoginScreen(),
         AppRoutes.cadastro: (context) => const CadastroScreen(),
