@@ -24,3 +24,7 @@ A sessão (`SessaoService`) fica no topo do app, num `ChangeNotifierProvider`, e
 O cadastro chama `POST /usuarios/` pelas mesmas camadas do login e já entra com a conta nova. Quando a API recusa (e-mail repetido, campo inválido), a frase aparece na tela.
 
 O token fica no aparelho (`shared_preferences`, que no navegador é o `localStorage`), num repositório próprio, o `TokenRepository`. O `main` o restaura antes de abrir o app: se a API ainda o aceita, o F5 não derruba a sessão. O Sair apaga o token.
+
+A tela de produtos chama `GET /produtos/` pelas camadas do app (tela, `ProdutoService`, `ProdutoRepository`), com o token no cabeçalho, e mostra só os produtos de quem está logado. Ela tem quatro estados: carregando, erro (com Tentar de novo), lista vazia e a lista.
+
+Tocar num produto abre o detalhe pela rota `/produto`, com o id nos `arguments`: o detalhe busca o produto na API (`GET /produtos/{id}`), para mostrar o dado de agora.
