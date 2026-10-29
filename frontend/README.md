@@ -28,3 +28,7 @@ O token fica no aparelho (`shared_preferences`, que no navegador é o `localStor
 A tela de produtos chama `GET /produtos/` pelas camadas do app (tela, `ProdutoService`, `ProdutoRepository`), com o token no cabeçalho, e mostra só os produtos de quem está logado. Ela tem quatro estados: carregando, erro (com Tentar de novo), lista vazia e a lista.
 
 Tocar num produto abre o detalhe pela rota `/produto`, com o id nos `arguments`: o detalhe busca o produto na API (`GET /produtos/{id}`), para mostrar o dado de agora.
+
+O app cria, edita e exclui produtos pelas camadas (tela, `ProdutoService`, `ProdutoRepository`), com o token no cabeçalho: `POST /produtos/`, `PATCH /produtos/{id}` e `DELETE /produtos/{id}`. Um formulário só (`FormularioScreen`) serve para criar e editar.
+
+A validação acontece nas duas pontas: o `validator` de cada campo antes de enviar, e a API, que recusa com 422 ou 409; a frase da API aparece na tela. Excluir pede confirmação num diálogo. Depois de cada operação, a tela fecha com `true`, e a lista pede os produtos de novo.

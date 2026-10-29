@@ -22,7 +22,8 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
     produtos = context.read<ProdutoService>().listar();
   }
 
-  void tentarDeNovo() {
+  // Pede a lista de novo: volta de uma tela que mudou o acervo (fechou com true).
+  void pedirDeNovo() {
     setState(() {
       produtos = context.read<ProdutoService>().listar();
     });
@@ -54,7 +55,7 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: tentarDeNovo,
+                    onPressed: pedirDeNovo,
                     child: const Text('Tentar de novo'),
                   ),
                 ],
@@ -74,13 +75,27 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                 title: Text(produto.nome),
                 subtitle: Text('R\$ ${produto.preco.toStringAsFixed(2)}'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.produto, arguments: produto.id);
+                onTap: () async {
+                  final mudou = await Navigator.pushNamed(context, AppRoutes.produto, arguments: produto.id);
+                  if (mudou == true) {
+                    pedirDeNovo();
+                  }
                 },
               );
             },
           );
         },
+      ),
+      // O + abre o formulário vazio. Se voltar true (salvou), recarrega a lista.
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Novo produto',
+        onPressed: () async {
+          final salvou = await Navigator.pushNamed(context, AppRoutes.formulario);
+          if (salvou == true) {
+            pedirDeNovo();
+          }
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

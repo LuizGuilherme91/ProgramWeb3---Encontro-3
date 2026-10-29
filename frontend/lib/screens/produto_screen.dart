@@ -2,16 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/produto.dart';
+import '../routes.dart';
 import '../services/produto_service.dart';
 import 'produtos_screen.dart';
 
-// O detalhe de um produto. Chega só o id, e a tela pede o produto à API:
-// o dado é o de agora, e não o de quando a lista carregou.
 class ProdutoScreen extends StatefulWidget {
   const ProdutoScreen({super.key, this.id});
-
-  // O id que a rota tirou dos arguments. Sem ele (um F5 aqui apaga os
-  // arguments), a tela mostra a lista.
   final int? id;
 
   @override
@@ -19,8 +15,8 @@ class ProdutoScreen extends StatefulWidget {
 }
 
 class _ProdutoScreenState extends State<ProdutoScreen> {
-  // O pedido do produto nasce uma vez, no initState.
   late Future<Produto> pedido;
+  String? erro;
 
   @override
   void initState() {
@@ -34,6 +30,46 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     setState(() {
       pedido = context.read<ProdutoService>().buscar(widget.id!);
     });
+  }
+
+  Future<void> editar(Produto produto) async {
+    final salvou = await Navigator.pushNamed(context, AppRoutes.formulario, arguments: produto);
+    if (salvou == true && mounted) {
+      Navigator.pop(context, true);
+    }
+  }
+
+  Future<void> excluir(Produto produto) async {
+    final certeza = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Excluir ${produto.nome}?'),
+        content: const Text('Tem certeza? O produto sai do seu acervo, e não dá para desfazer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+    if (certeza != true || !mounted) {
+      return;
+    }
+    try {
+      await context.read<ProdutoService>().excluir(produto.id);
+    } on ErroDeProdutos catch (e) {
+      setState(() {
+        erro = '$e';
+      });
+      return;
+    }
+    if (!mounted) return;
+    Navigator.pop(context, true); // Devolve true para a lista recarregar
   }
 
   @override
@@ -89,6 +125,31 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                 title: const Text('Situação'),
                 subtitle: Text(produto.emEstoque ? 'Em Estoque' : 'Esgotado'),
               ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => editar(produto),
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Editar'),
+                  ),
+                  const SizedBox(width: 16),
+                  OutlinedButton.icon(
+                    onPressed: () => excluir(produto),
+                    icon: const Icon(Icons.delete),
+                    label: const Text('Excluir'),
+                  ),
+                ],
+              ),
+              if (erro != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  erro!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ],
             ],
           );
         },
