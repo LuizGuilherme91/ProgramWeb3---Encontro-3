@@ -4,10 +4,13 @@ import 'package:provider/provider.dart';
 import '../models/produto.dart';
 import '../routes.dart';
 import '../services/produto_service.dart';
+import '../widgets/aviso.dart';
 import 'produtos_screen.dart';
 
+// O detalhe de um produto. Chega só o id, e a tela busca os dados atuais na API.
 class ProdutoScreen extends StatefulWidget {
   const ProdutoScreen({super.key, this.id});
+
   final int? id;
 
   @override
@@ -33,7 +36,11 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   }
 
   Future<void> editar(Produto produto) async {
-    final salvou = await Navigator.pushNamed(context, AppRoutes.formulario, arguments: produto);
+    final salvou = await Navigator.pushNamed(
+      context,
+      AppRoutes.formulario,
+      arguments: produto,
+    );
     if (salvou == true && mounted) {
       Navigator.pop(context, true);
     }
@@ -44,7 +51,9 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Excluir ${produto.nome}?'),
-        content: const Text('Tem certeza? O produto sai do seu acervo, e não dá para desfazer.'),
+        content: const Text(
+          'Tem certeza? O produto sai do seu catálogo, e não dá para desfazer.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -63,13 +72,16 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     try {
       await context.read<ProdutoService>().excluir(produto.id);
     } on ErroDeProdutos catch (e) {
+      if (!mounted) return;
       setState(() {
         erro = '$e';
       });
+      avisar(context, 'Não deu para excluir', erro: true);
       return;
     }
     if (!mounted) return;
-    Navigator.pop(context, true); // Devolve true para a lista recarregar
+    avisar(context, 'Produto excluído');
+    Navigator.pop(context, true);
   }
 
   @override
@@ -78,7 +90,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
       return const ProdutosScreen();
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalhe do Produto')),
+      appBar: AppBar(title: const Text('Produto')),
       body: FutureBuilder<Produto>(
         future: pedido,
         builder: (context, snapshot) {
@@ -111,7 +123,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
           return ListView(
             children: [
               ListTile(
-                leading: const Icon(Icons.inventory),
+                leading: const Icon(Icons.shopping_bag),
                 title: const Text('Nome'),
                 subtitle: Text(produto.nome),
               ),
@@ -121,9 +133,13 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                 subtitle: Text('R\$ ${produto.preco.toStringAsFixed(2)}'),
               ),
               ListTile(
-                leading: Icon(produto.emEstoque ? Icons.check_circle : Icons.cancel),
+                leading: Icon(
+                  produto.emEstoque
+                      ? Icons.check_circle
+                      : Icons.remove_circle_outline,
+                ),
                 title: const Text('Situação'),
-                subtitle: Text(produto.emEstoque ? 'Em Estoque' : 'Esgotado'),
+                subtitle: Text(produto.emEstoque ? 'Em estoque' : 'Esgotado'),
               ),
               const SizedBox(height: 16),
               Row(

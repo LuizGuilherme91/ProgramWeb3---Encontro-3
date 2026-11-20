@@ -3,13 +3,14 @@ import 'package:provider/provider.dart';
 
 import '../models/produto.dart';
 import '../services/produto_service.dart';
+import '../widgets/aviso.dart';
 import 'produtos_screen.dart';
 
 // Uma tela só para criar e para editar: sem produto, cria; com produto, edita.
 class FormularioScreen extends StatefulWidget {
   const FormularioScreen({super.key, this.produto});
 
-  // O produto a editar, que veio nos arguments; null é um produto novo.
+  // O produto a editar, vindo nos arguments; null é um produto novo.
   final Produto? produto;
 
   @override
@@ -17,7 +18,6 @@ class FormularioScreen extends StatefulWidget {
 }
 
 class _FormularioScreenState extends State<FormularioScreen> {
-  // A chave do Form: é por ela que o Salvar alcança o formulário e confere tudo.
   final chave = GlobalKey<FormState>();
   final nome = TextEditingController();
   final preco = TextEditingController();
@@ -27,15 +27,13 @@ class _FormularioScreenState extends State<FormularioScreen> {
   @override
   void initState() {
     super.initState();
-    // Editando: os campos já começam preenchidos.
     if (widget.produto != null) {
       nome.text = widget.produto!.nome;
-      preco.text = '${widget.produto!.preco}';
+      preco.text = widget.produto!.preco.toStringAsFixed(2);
     }
   }
 
   Future<void> salvar() async {
-    // A ponta do app: confere os campos localmente.
     if (!chave.currentState!.validate()) {
       return;
     }
@@ -43,25 +41,29 @@ class _FormularioScreenState extends State<FormularioScreen> {
       salvando = true;
       erro = null;
     });
-    
-    // A ponta da API: ela confere tudo de novo, e pode recusar.
     final servico = context.read<ProdutoService>();
+    final valorPreco = double.parse(preco.text.trim().replaceAll(',', '.'));
     try {
       if (widget.produto == null) {
-        await servico.criar(nome.text, double.parse(preco.text));
+        await servico.criar(nome.text.trim(), valorPreco);
       } else {
-        await servico.atualizar(widget.produto!.id, nome.text, double.parse(preco.text));
+        await servico.atualizar(
+          widget.produto!.id,
+          nome.text.trim(),
+          valorPreco,
+        );
       }
     } on ErroDeProdutos catch (e) {
+      if (!mounted) return;
       setState(() {
         salvando = false;
         erro = '$e';
       });
+      avisar(context, 'Não deu para salvar', erro: true);
       return;
     }
     if (!mounted) return;
-    
-    // Deu certo: o formulário fecha com true, e quem o abriu (lista/detalhe) pede de novo.
+    avisar(context, 'Produto salvo');
     Navigator.pop(context, true);
   }
 
@@ -94,12 +96,12 @@ class _FormularioScreenState extends State<FormularioScreen> {
                   TextFormField(
                     controller: nome,
                     decoration: const InputDecoration(
-                      labelText: 'Nome do Produto',
+                      labelText: 'Nome',
                       border: OutlineInputBorder(),
                     ),
                     validator: (valor) {
                       if ((valor ?? '').trim().isEmpty) {
-                        return 'Informe o nome do produto';
+                        return 'Informe o nome';
                       }
                       return null;
                     },
@@ -111,10 +113,13 @@ class _FormularioScreenState extends State<FormularioScreen> {
                       labelText: 'Preço',
                       border: OutlineInputBorder(),
                     ),
-                    keyboardType: TextInputType.number,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     validator: (valor) {
-                      if (double.tryParse(valor ?? '') == null) {
-                        return 'Informe o preço, apenas com números e ponto (ex: 150.50)';
+                      final texto = (valor ?? '').trim().replaceAll(',', '.');
+                      if (double.tryParse(texto) == null) {
+                        return 'Informe o preço, só com números';
                       }
                       return null;
                     },

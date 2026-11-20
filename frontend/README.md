@@ -32,3 +32,12 @@ Tocar num produto abre o detalhe pela rota `/produto`, com o id nos `arguments`:
 O app cria, edita e exclui produtos pelas camadas (tela, `ProdutoService`, `ProdutoRepository`), com o token no cabeçalho: `POST /produtos/`, `PATCH /produtos/{id}` e `DELETE /produtos/{id}`. Um formulário só (`FormularioScreen`) serve para criar e editar.
 
 A validação acontece nas duas pontas: o `validator` de cada campo antes de enviar, e a API, que recusa com 422 ou 409; a frase da API aparece na tela. Excluir pede confirmação num diálogo. Depois de cada operação, a tela fecha com `true`, e a lista pede os produtos de novo.
+
+## Checklist das seis funcionalidades mínimas
+
+- [x] Autenticação: login e cadastro; sem sessão, a tela de entrada
+- [x] CRUD: o + cria, o detalhe edita e exclui
+- [x] Relacionamento com o usuário: cada um vê só os seus registros (o dono vem do token)
+- [x] Validação nas duas pontas: o validator no app, e o 422/409 da API com a frase
+- [x] Busca/filtro: o campo de busca da lista, pelo ?nome= da API
+- [x] Feedback visual: a faixa verde ou vermelha de toda ação
